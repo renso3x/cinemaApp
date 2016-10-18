@@ -1,0 +1,23 @@
+{
+  "name": "BigTown Cinema",
+  "description": "Demonstrates use of AngularJS modules, controllers, services, and $http",
+  "main": "index.js",
+  "authors": "NUS ISS StackUp",
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "angular": "^1.5.0",
+    "font-awesome": "fontawesome#^4.5.0",
+    "jquery": "^2.2.1",
+    "angular-bootstrap": "^2.2.0"
+  }
+}

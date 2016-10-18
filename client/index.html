@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html ng-app="BigTownCinema">
+  <head lang="en">
+    <meta charset="utf-8">
+    <title>Big Town Cinema</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="/css/main.css"/>
+  </head>
+  <body>
+  <div class="container" ng-controller="BookingController as ctrl">
+    <div class="row">
+      <h2 class="text-center">Big Town Cinema Ticketing System</h2>
+      <div class="col-md-12">
+        <h4 class="movie">Movie: <a href="" ng-click="ctrl.viewMovie()">The Shawshank Redemption (1994)</a></h4>
+      </div>
+      <div class="col-md-12">
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">Reservation Date & Seats</div>
+            <div class="panel-body">
+              <p class="input-group">
+                <input type="text" 
+                  class="form-control" 
+                  uib-datepicker-popup="{{ctrl.format}}"
+                  ng-model="ctrl.booking.date" 
+                  is-open="ctrl.popup.opened" 
+                  datepicker-options="ctrl.dateOptions" 
+                  ng-required="true" 
+                  close-text="Close" 
+                  ng-change="ctrl.selectedDate()">
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" ng-click="ctrl.popupDate()"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+              </p>
+              <div class="well">
+                <h3 class="text-center">SCREEN</h3>
+                  <table class="table">
+                      <tbody>
+                      <tr ng-repeat="rows in ctrl.seatsArr">
+                          <td class="td-default"
+                              ng-repeat="seat in rows | filter: ctrl.filterSeatsByDate"
+                              ng-click="ctrl.occupySeat(parentIndex, seatsArr, seats, seat, $index)"
+                              ng-class="{'td-selected': seat.reserved == true, 'td-occupied': seat.reserved == 'occuped' }">
+                              {{seat.name}}
+                          </td>
+                      </tr>
+                      </tbody>
+                  </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">Reservation Form </div>
+            <div class="panel-body">
+
+              <label for="date">Selected Date</label>
+              <form ng-submit="userForm.$valid && ctrl.submitReservation()" name="userForm" novalidate>
+                <div class="form-group">
+                  <input type="hidden"  ng-model="ctrl.newBookingObj.date">
+                   <span type="text" id="date" placeholder="Date">
+                      {{ ctrl.booking.date | date:'dd-MMMM-yyyy'}}
+                   </span>
+                </div>
+                <div class="form-group">
+                  <label for="seat">Selected Seat(s)</label>
+                  {{ ctrl.newBookingObj.seats.length }}
+                  <ul class="list-inline">
+                    <li ng-repeat="seat in ctrl.newBookingObj.seats">#{{seat.name}}</li>
+                  </ul>
+                </div>
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input type="text" class="form-control" id="name" placeholder="Name" ng-model="ctrl.newBookingObj.custName" required>
+                </div>
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" class="form-control" id="email" placeholder="Email" ng-model="ctrl.newBookingObj.custEmail" required>
+                </div>
+                <div class="form-group">
+                  <label for="number">Mobile #</label>
+                  <input type="number" class="form-control" id="number" placeholder="Mobile #" ng-model="ctrl.newBookingObj.custMobile" ng-pattern="/^[0-9]{1,6}$/" required>
+                </div>
+                <button type="submit" class="btn btn-lg btn-primary" ng-disabled="userForm.$invalid">Reserve</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">Reserved Users</div>
+          <div class="panel-body">
+            <input class="pull-right" type="text" ng-model="vm.filterBy" placeholder="Search by..">
+            <table class="table">
+              <thead>
+              <th>Transaction #</th>
+              <th>Date</th>
+              <th>Ticket</th>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Action</th>
+              </thead>
+              <tbody>
+              <tr ng-repeat="customer in ctrl.bookings | filter:vm.filterBy track by $index"
+                  ng-init="customer.edit == false;customer.paid == false"
+                  ng-class="{'active': !customer.paid, 'success': customer.paid}">
+                <td>{{customer.transac_id}}</td>
+                <td>{{customer.date}}</td>
+                <td>
+                  <ul class="list-inline">
+                    <li ng-repeat="seats in customer.seats">
+                      {{seats.name}}
+                    </li>
+                  </ul>
+                </td>
+                <td>{{customer.custName}}</td>
+                <td>
+                  <p ng-hide="customer.edit">{{customer.status}}</p>
+                  <select class="form-control" ng-model="ctrl.reserveStatus" ng-if="customer.edit">
+                    <option value="Reserved"> Reserved</option>
+                    <option value="Paid"> Paid</option>
+                    <option value="Cancelled"> Cancelled</option>
+                  </select>
+                </td>
+                <td>
+                  <button ng-if="customer.edit" class="btn btn-success" ng-click="ctrl.updateInfo($index, customer, ctrl.reserveStatus)">Save</button>
+                  <button ng-if="customer.edit" class="btn btn-default" ng-click="ctrl.cancelUpdate($index, customer.status)">Cancel</button>
+                  <button ng-hide="customer.edit" class="btn btn-info" ng-click="customer.edit = true" ng-disabled="customer.paid">Edit</button>
+                  <button class="btn btn-warning" ng-click="ctrl.deleteRow($index)" ng-hide="customer.edit" ng-disabled="customer.paid">Delete</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- scripts -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script data-require="ui-bootstrap@0.10.0" data-semver="0.10.0" src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.10.0.js"></script> 
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+    <script src="app/app.js"></script>
+    <script src="app/booking/booking.controller.js"></script>
+    <script src="app/booking/booking.modal.js"></script>
+    <script src="app/booking/booking.service.js"></script>
+  </body>
+</html>
